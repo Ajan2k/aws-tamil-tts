@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-# System deps for TTS + audio
+# System deps for audio processing
 RUN apt-get update && apt-get install -y \
     build-essential \
     libsndfile1 \
@@ -17,9 +17,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Pre-download Tamil model during build to avoid runtime download (faster cold start)
-# Comment this if you use custom MODEL_PATH
-RUN python -c "from TTS.api import TTS; TTS(model_name='tts_models/ta/cv/vits')" || echo "Pre-download failed, will download at runtime"
+# HuggingFace token for gated models (pass via --build-arg HF_TOKEN=hf_xxx)
+ARG HF_TOKEN=""
+ENV HF_TOKEN=${HF_TOKEN}
+
+# Pre-download AI4Bharat VITS model during build (faster cold start)
+RUN python -c "from transformers import AutoModel, AutoTokenizer; AutoTokenizer.from_pretrained('ai4bharat/vits_rasa_13', trust_remote_code=True); AutoModel.from_pretrained('ai4bharat/vits_rasa_13', trust_remote_code=True)" || echo "Pre-download failed, will download at runtime"
 
 COPY app.py .
 
@@ -29,8 +32,9 @@ RUN mkdir -p /tmp/tts_cache /tmp/tts_outputs
 EXPOSE 8000
 
 # Environment
-ENV MODEL_TYPE=coqui_vits
-ENV MODEL_NAME=tts_models/ta/cv/vits
+ENV MODEL_ID=ai4bharat/vits_rasa_13
+ENV SPEAKER_ID=18
+ENV STYLE_ID=4
 ENV PYTHONUNBUFFERED=1
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

@@ -3,13 +3,13 @@ import requests
 # Change to your EC2 IP
 BASE_URL = "http://YOUR_EC2_PUBLIC_IP:8000"
 
-# Test phrases - Chennai slang
+# Test phrases - Chennai slang in Tamil script
 phrases = [
-    "Vanakkam da, enna da panra?",
-    "Dei machan, sema mass da scene-u!",
-    "Seri da, naan office mudichitu varen",
-    "Chennai la mazhai sema ya irukku da",
-    "Saptiya machan? Illa da, innum illa"
+    "வணக்கம் டா, என்ன பண்ற?",
+    "டேய் மச்சான், சேமா சீன் டா!",
+    "சரி டா, நான் ஆபிஸ் முடிச்சிட்டு வரேன்",
+    "சென்னை ல மழை சேமா இருக்கு டா",
+    "சாப்ட்டியா மச்சான்? இல்ல டா, இன்னும் இல்ல"
 ]
 
 def test_health():
@@ -21,7 +21,7 @@ def test_synthesize():
         print(f"\nSynthesizing: {text}")
         resp = requests.post(f"{BASE_URL}/synthesize", json={"text": text, "cache": True})
         if resp.status_code == 200:
-            filename = f"output_{text[:10].replace(' ', '_')}.wav"
+            filename = f"output_{hash(text) % 10000}.wav"
             with open(filename, "wb") as f:
                 f.write(resp.content)
             print(f"Saved -> {filename} ({len(resp.content)} bytes)")

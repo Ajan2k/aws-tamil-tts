@@ -1,16 +1,18 @@
 version: '3.8'
 services:
   tamil-tts:
-    build: .
+    build:
+      context: .
+      args:
+        - HF_TOKEN=${HF_TOKEN:-}
     container_name: tamil-tts
     ports:
       - "8000:8000"
     environment:
-      - MODEL_TYPE=coqui_vits
-      - MODEL_NAME=tts_models/ta/cv/vits
-      # Uncomment for custom Chennai slang checkpoint
-      # - MODEL_PATH=/models/chennai_best_model.pth
-      # - CONFIG_PATH=/models/config.json
+      - MODEL_ID=ai4bharat/vits_rasa_13
+      - SPEAKER_ID=18
+      - STYLE_ID=4
+      - HF_TOKEN=${HF_TOKEN:-}
     volumes:
       # For custom model
       # - ./models:/models
