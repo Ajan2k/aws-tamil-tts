@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  tamil-tts:
+    build: .
+    container_name: tamil-tts
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_TYPE=coqui_vits
+      - MODEL_NAME=tts_models/ta/cv/vits
+      # Uncomment for custom Chennai slang checkpoint
+      # - MODEL_PATH=/models/chennai_best_model.pth
+      # - CONFIG_PATH=/models/config.json
+    volumes:
+      # For custom model
+      # - ./models:/models
+      - tts_cache:/tmp/tts_cache
+      - tts_output:/tmp/tts_outputs
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # Comment above deploy block if using CPU only (t3.medium)
+
+volumes:
+  tts_cache:
+  tts_output:
